@@ -9,10 +9,11 @@ class Lamport{
 
     tack(oddTimestamp){
         if(oddTimestamp > this.timestamp){
-            this.timestamp = oddTimestamp;
+            this.timestamp = parseInt(oddTimestamp);
         }
         this.tick();
     }
 }
+
 
 export default Lamport;
