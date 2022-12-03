@@ -10,19 +10,7 @@ export default (clock) => {
    * @param {Number} month (0-11)
    * @param {Number} dayOfWeek (0-6) Starting with Sunday
    */
-  const getRuleTZ = function (second, minute, hour, day, month, dayOfWeek) {
-    let rule = new schedule.RecurrenceRule();
-
-    rule.tz = 'America/Sao_Paulo';
-    second !== '*' ? (rule.second = second) : false;
-    minute !== '*' ? (rule.minute = minute) : false;
-    hour !== '*' ? (rule.hour = hour) : false;
-    day !== '*' ? (rule.date = day) : false;
-    month !== '*' ? (rule.month = month) : false;
-    dayOfWeek !== '*' ? (rule.dayOfWeek = dayOfWeek) : false;
-    return rule;
-  };
-
+  
   const increment = function () {
     schedule.scheduleJob(
       '*/1 * * * * *',
