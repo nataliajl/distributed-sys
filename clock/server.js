@@ -10,7 +10,7 @@ const clock = new Lamport();
 const local = localClock(clock);
 
 
-const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+const processing = ms => new Promise(resolve => setTimeout(resolve, ms));
 (() => {
   const app = express();
   const server = http.createServer(app);
@@ -33,12 +33,13 @@ const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
                                     });
   });
 
+  //fazer o esquema de uma maquina central
   router.get('/hello/:timestamp', async (req, res) => {
     clock.tick();
     console.log('*tick* - '+ clock.timestamp);
-    await delay(process.env.FLUTTER); /// waiting 1 second.
+    await processing(process.env.PROCESS_TIME); // simulação de tempo de processamento
     clock.tack(req.params.timestamp);
-    const communicate = fetch(process.env.ADDRESS +'/hello/'+ clock.timestamp, {method: 'get'})
+    const communicate = fetch(process.env.OTHER_PROCESS_ADDRESS +'/hello/'+ clock.timestamp, {method: 'get'})
                                     .then(function (response){
                                       return response;
                                     })
