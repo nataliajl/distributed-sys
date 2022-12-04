@@ -13,7 +13,7 @@ dotenv.config();
   const myProcess = new Process(process.env.PROCESS_NAME);
 
   router.get('/resource/:process', async (req, res) => {
-    console.log(`Resource accessed by ${req.params.process}`);
+    logger.info(`Resource accessed by ${req.params.process}`);
     res.json(`${myProcess.name} resource accessed `);
   });
 
@@ -39,7 +39,7 @@ dotenv.config();
   app.use('/', router);
 
   server.listen(port, async function () {
-    console.log(`Listening on http://localhost:${port}`);
+    logger.info(`Listening on http://localhost:${port}`);
   });
   
 })();

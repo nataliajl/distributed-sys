@@ -1,4 +1,5 @@
 import fetch from "node-fetch";
+import logger from '../log.js';
 
 class Process {
     constructor(name){
@@ -9,7 +10,7 @@ class Process {
 
     removeTask(){
         this.task -= 1;
-        console.log(`Process ${this.name} queue: ${this.task}`); 
+        logger.info(`Process ${this.name} queue: ${this.task}`); 
     }
 
     addTask(number){
@@ -18,7 +19,7 @@ class Process {
         else
             this.task += 1;
         
-        console.log(`Process ${this.name} queue: ${this.task}`); 
+        logger.info(`Process ${this.name} queue: ${this.task}`); 
     }
 
     setToken(){
@@ -29,7 +30,7 @@ class Process {
         this.hasToken = false;
         await fetch(`${address}/token`, {method: 'POST'})
         .then((response) => response.json())
-        .then((data) => console.log(data));
+        .then((data) => logger.info(data));
     }
 
     async accessResource(address, miliseconds){
@@ -40,7 +41,7 @@ class Process {
 
             await fetch(`${address}/resource/${this.name}`, {method: 'GET'})
             .then((response) => response.json())
-            .then((data) => console.log(data));
+            .then((data) => logger.info(data));
 
             this.removeTask();
         }
