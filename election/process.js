@@ -13,103 +13,95 @@ class Process {
     this.isCoordinator = false;
     this.coordinator = {};
   }
-
   /**
    * @param {int} id
    */
   setCoordinator(id) {
-    logger.debug(this.processes);
+    logger.debug('Here are the processes:', this.processes);
     const process = this.processes.find((process) => {
-      if(process.id == id)
-        return process;
+      if (process.id == id) return process;
     });
-    
+    logger.debug('Current coordinator: ', this.coordinator);
     this.coordinator = process;
-    logger.debug(this.coordinator);
     if (id != this.id) {
       this.isCoordinator = false;
+      logger.debug('I am not the coordinator anymore');
     }
 
-    logger.debug(this.coordinator)
+    logger.debug('updated coordinator: ', this.coordinator);
+  }
+
+  async pingCoordinator() {
+    if (!this.isCoordinator) {
+      const url = `http://${this.coordinator.url}/ping`;
+      logger.info(
+        `The process ${this.id} is verifying the coordinator availability`
+      );
+      logger.info(`url: ${url}`);
+      fetch(url, {
+        method: 'GET',
+      }).catch(() => this.callElection());
+    }
   }
 
   async updateProcesses(addresses) {
     addresses.forEach((address, id) => {
-      this.processes.push({id: id, url: address});
+      this.processes.push({ id: id, url: address });
     });
 
     logger.debug(this.processes);
   }
 
-  async worker() {
-    schedule.scheduleJob('*/5 * * * * *', async function () {
-      if (!this.isCoordinator) 
-        pingCoordinator();
-      // updateProcesses();
-    });
-  }
-
   declareMyselfAsCoordinator() {
     this.isCoordinator = true;
-    logger.info("I'm the coordinator now!");
+    logger.info("I'm the coordinator now! I'll tell everybody");
 
     this.processes.forEach((process) => {
       fetch(`http://${process.url}/news`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
           // 'Content-Type': 'application/x-www-form-urlencoded',
         },
         body: JSON.stringify({ id: this.id }),
-      })
-      .then((response) => response.json())
-      .then((data) => logger.info(data))
-      .catch((err) => logger.error(err.message));
+      }).catch((err) => logger.error(err.message));
     });
   }
 
   async callElection() {
-    logger.info('Election called');
+    logger.info('Election called by me, the process ', this.id);
     new Promise((resolve, reject) => {
       this.processes.forEach(async (process) => {
         if (process.id > this.id) {
-         await fetch(`http://${process.url}/election`, { method: 'GET' })
-          .then((response) => {
+          await fetch(`http://${process.url}/election`, { method: 'GET' })
+            .then((response) => {
               const status = response.status;
-              logger.info(`Process ${process.id} response: ${status}`);
-              logger.debug(status);
+              logger.info(
+                `The process ${process.id} returned the status: ${status}`
+              );
               if (status == 200) {
                 resolve(false); // not elected if receive response
               }
-            }
-          )
-          .catch((err) => logger.error(err.message));
+            })
+            .catch((err) => logger.error(err.message));
         }
       });
       resolve(true);
     })
-    .then((resolve) => {
-      logger.debug(`Declare myself as coordinator - ${resolve}`);
-      if (resolve == true) {
-        this.declareMyselfAsCoordinator();
-      }
-    },
-    (reject) => {
-      logger.debug(`Declare myself as coordinator - ${reject}`);
-    })
-    .catch((err) => logger.error(err.message));
-  }
-
-  async pingCoordinator() {
-    logger.info(
-      `The process ${this.id} is verifying the coordinator availability`
-    );
-    const responseStatus = fetch(`${this.coordinator.url}/ping`, {
-      method: 'GET',
-    }).then((response) => response.status);
-    if (responseStatus !== 200) {
-      this.callElection();
-    }
+      .then(
+        (resolve) => {
+          logger.debug(`Declare myself as coordinator - ${resolve}`);
+          if (resolve == true) {
+            this.declareMyselfAsCoordinator();
+          }
+        },
+        (reject) => {
+          logger.debug(
+            `Okay, maybe it is not my time to be a coordinator - ${reject}`
+          );
+        }
+      )
+      .catch((err) => logger.error(err.message));
   }
 }
 

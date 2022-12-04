@@ -5,6 +5,8 @@ import dotenv from 'dotenv';
 import http from 'http';
 import os from 'os';
 import bodyParse from 'body-parser';
+import MyWorker from './myWorker.js';
+
 dotenv.config();
 
 (() => {
@@ -14,6 +16,9 @@ dotenv.config();
   const port = process.env.PORT || 9898;
   const address = os.networkInterfaces().lo[0].address;
   const myProcess = new Process(process.env.PROCESS_ID, address);
+  const worker = new MyWorker();
+
+  worker.start(myProcess);
 
   router.get(`/election`, async (req, res) => {
     await myProcess.callElection();
@@ -22,21 +27,13 @@ dotenv.config();
 
   router.post(`/news`, async (req, res) => {
     const newCoordinator = req.body;
-    logger.debug(newCoordinator);
+    logger.debug(`Now i notice that the coordinator is `, newCoordinator);
     myProcess.setCoordinator(newCoordinator.id);
-    res.status(200).json(`New coordinator - ${myProcess.coordinator.id}`);
+    res.status(200);
   });
 
   router.get(`/ping`, async (req, res) => {
     res.json().status(200);
-  });
-
-  router.get(`/info`, async (req, res) => {
-    res.status(200).json({
-        id: myProcess.id,
-        url: myProcess.url,
-        // isCoordinator: myProcess.isCoordinator,
-      });
   });
 
   // Default
@@ -46,9 +43,8 @@ dotenv.config();
 
   server.listen(port, async function () {
     logger.info(`Listening on http://localhost:${port}`);
-    const processes = (process.env.PROCESS_ADDRESS).split(',');
+    const processes = process.env.PROCESS_ADDRESS.split(',');
     await myProcess.updateProcesses(processes);
     await myProcess.callElection();
-
   });
 })();
