@@ -10,10 +10,10 @@ dotenv.config();
 
 log4js_extend(log4js, {
   path: __dirname,
-  format: `at Process ${process.env.PROCESS_NAME}`,
+  format: `at Process ${process.env.PROCESS_NAME} (@file:@line:@column)`,
 });
 
 const logger = log4js.getLogger('MC714-T2');
-logger.level = 'info';
+logger.level = 'debug';
 
 export default logger;
