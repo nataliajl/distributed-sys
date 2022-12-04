@@ -1,8 +1,8 @@
-import Process from "./process.js";
+import Process from './process.js';
 import logger from '../log.js';
-import express from "express";
+import express from 'express';
 import dotenv from 'dotenv';
-import http from "http";
+import http from 'http';
 import os from 'os';
 import bodyParse from 'body-parser';
 dotenv.config();
@@ -33,18 +33,19 @@ dotenv.config();
   });
 
   router.get(`/info`, async (req, res) => {
-    res.json({
-        "id" : myProcess.id,
-        "url": myProcess.url,
-        "isCoordinator": myProcess.isCoordinator,
-    }).status(200)
+    res
+      .json({
+        id: myProcess.id,
+        url: myProcess.url,
+        isCoordinator: myProcess.isCoordinator,
+      })
+      .status(200);
   });
 
   // Default
   app.use(bodyParse.json());
   app.use(bodyParse.urlencoded({ extended: true }));
   app.use('/', router);
-  
 
   server.listen(port, async function () {
     logger.info(`Listening on http://localhost:${port}`);
@@ -52,5 +53,4 @@ dotenv.config();
 
     myProcess.callElection();
   });
-  
 })();

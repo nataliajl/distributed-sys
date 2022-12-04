@@ -1,8 +1,8 @@
 import Process from './process.js';
 import logger from '../log.js';
-import express from "express";
+import express from 'express';
 import dotenv from 'dotenv';
-import http from "http";
+import http from 'http';
 
 dotenv.config();
 
@@ -14,7 +14,7 @@ dotenv.config();
   const myProcess = new Process(process.env.PROCESS_NAME);
 
   myProcess.startClock();
-    
+
   // Lamport
   router.get('/hello', async (req, res) => {
     myProcess.startEvent(process.env.OTHER_PROCESS_ADDRESS);
@@ -33,5 +33,4 @@ dotenv.config();
   server.listen(port, async function () {
     logger.info(`Listening on http://localhost:${port}`);
   });
-
 })();

@@ -1,7 +1,7 @@
-import Process from "./process.js";
-import express from "express";
+import Process from './process.js';
+import express from 'express';
 import dotenv from 'dotenv';
-import http from "http";
+import http from 'http';
 
 dotenv.config();
 
@@ -27,11 +27,14 @@ dotenv.config();
     myProcess.addTask(number);
     res.json(`Process ${myProcess.name} queue - ${myProcess.task}`);
   });
-  
+
   router.post('/token', async (req, res) => {
     res.json(`Token possession - Process ${myProcess.name}`);
     myProcess.setToken();
-    await myProcess.accessResource(process.env.RESOURCE_ADDRESS, process.env.PROCESS_TIME);
+    await myProcess.accessResource(
+      process.env.RESOURCE_ADDRESS,
+      process.env.PROCESS_TIME
+    );
     await myProcess.releaseToken(process.env.OTHER_PROCESS_ADDRESS);
   });
 
@@ -41,5 +44,4 @@ dotenv.config();
   server.listen(port, async function () {
     logger.info(`Listening on http://localhost:${port}`);
   });
-  
 })();
