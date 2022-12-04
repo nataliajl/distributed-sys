@@ -1,56 +1,51 @@
 import schedule from 'node-schedule';
 import fetch from 'node-fetch';
 import logger from '../log.js';
+import dotenv from 'dotenv';
 
-// 1 - O processo deve conhecer todos os outros processos
-// 2 - Se nenhum dos processos acima responder o chamado de eleição,
-// então ele será o novo coordenador
-// 3 - Se o processo receber um chamado de eleição, ele deverá responder
-// quem o chamou
-// 4 - Ao responder quem o chamou, ele também deverá continuar o processo
-// de requisitar os processos acima
-// 5 - O vencedor enviará a todos os processos uma mensagem dizendo que
-// ele é o novo coordenador.
+dotenv.config();
 
 class Process {
-  constructor(id, url, processes) {
+  constructor(id, url) {
     this.id = id;
     this.url = url;
-    this.processes = processes;
+    this.processes = [];
     this.isCoordinator = false;
-    this.coordinator = this.processes.find(
-      (process) => process.isCoordinator == true
-    );
+    this.coordinator = {};
   }
 
   /**
    * @param {int} id
    */
   setCoordinator(id) {
-    const process = this.processes.find((process) => process.id == id);
+    logger.debug(this.processes);
+    const process = this.processes.find((process) => {
+      if(process.id == id)
+        return process;
+    });
+    
     this.coordinator = process;
-    if (process.id != this.id) {
+    logger.debug(this.coordinator);
+    if (id != this.id) {
       this.isCoordinator = false;
     }
+
+    logger.debug(this.coordinator)
   }
 
-  updateProcesses() {
-    this.processes = this.processes.map((process) => {
-      fetch(`${process}/info`, { method: 'GET' })
-        .then((response) => response.json())
-        .map((process) => {
-          return {
-            id: process.id,
-            url: process.url,
-          };
-        });
+  async updateProcesses(addresses) {
+    addresses.forEach((address, id) => {
+      this.processes.push({id: id, url: address});
     });
+
+    logger.debug(this.processes);
   }
 
   async worker() {
     schedule.scheduleJob('*/5 * * * * *', async function () {
-      if (!this.isCoordinator) pingCoordinator();
-      updateProcesses();
+      if (!this.isCoordinator) 
+        pingCoordinator();
+      // updateProcesses();
     });
   }
 
@@ -59,45 +54,50 @@ class Process {
     logger.info("I'm the coordinator now!");
 
     this.processes.forEach((process) => {
-      fetch(`${process.url}/news`, {
+      fetch(`http://${process.url}/news`, {
         method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+          // 'Content-Type': 'application/x-www-form-urlencoded',
+        },
         body: JSON.stringify({ id: this.id }),
       })
-        .then((response) => response.json())
-        .then((data) => logger.info(data))
-        .catch((err) => logger.error(err));
+      .then((response) => response.json())
+      .then((data) => logger.info(data))
+      .catch((err) => logger.error(err.message));
     });
   }
 
   async callElection() {
     logger.info('Election called');
     new Promise((resolve, reject) => {
-      this.processes.forEach((process) => {
+      this.processes.forEach(async (process) => {
         if (process.id > this.id) {
-          fetch(`${process.url}/election`, { method: 'GET' }).then(
-            (response) => {
+         await fetch(`http://${process.url}/election`, { method: 'GET' })
+          .then((response) => {
               const status = response.status;
               logger.info(`Process ${process.id} response: ${status}`);
+              logger.debug(status);
               if (status == 200) {
-                reject(false); // not elected if receive response
+                resolve(false); // not elected if receive response
               }
             }
-          );
+          )
+          .catch((err) => logger.error(err.message));
         }
       });
       resolve(true);
-    }).then((response) => {
-      if (response == true) {
+    })
+    .then((resolve) => {
+      logger.debug(`Declare myself as coordinator - ${resolve}`);
+      if (resolve == true) {
         this.declareMyselfAsCoordinator();
       }
-    });
-  }
-
-  async knowTheNewestCoordinator(coordinatorId) {
-    logger.info(
-      `Okay, i accept ${coordinatorId} as my coordinator because it is stronger than me`
-    );
-    this.currentCoordinator = coordinatorId;
+    },
+    (reject) => {
+      logger.debug(`Declare myself as coordinator - ${reject}`);
+    })
+    .catch((err) => logger.error(err.message));
   }
 
   async pingCoordinator() {

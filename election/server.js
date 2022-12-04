@@ -12,8 +12,6 @@ dotenv.config();
   const router = express.Router();
   const server = http.createServer(app);
   const port = process.env.PORT || 9898;
-  //TODO: COLOCAR ENDEREÇOS EM VARIAVEL NODE_ENV E MANDAR UPDATE PARA OUTRAS
-  const processes = process.env.PROCESSES;
   const address = os.networkInterfaces().lo[0].address;
   const myProcess = new Process(process.env.PROCESS_ID, address);
 
@@ -24,8 +22,9 @@ dotenv.config();
 
   router.post(`/news`, async (req, res) => {
     const newCoordinator = req.body;
+    logger.debug(newCoordinator);
     myProcess.setCoordinator(newCoordinator.id);
-    res.status(200).json(`New coordinator - ${myProcess.coordinator}`);
+    res.status(200).json(`New coordinator - ${myProcess.coordinator.id}`);
   });
 
   router.get(`/ping`, async (req, res) => {
@@ -33,13 +32,11 @@ dotenv.config();
   });
 
   router.get(`/info`, async (req, res) => {
-    res
-      .json({
+    res.status(200).json({
         id: myProcess.id,
         url: myProcess.url,
-        isCoordinator: myProcess.isCoordinator,
-      })
-      .status(200);
+        // isCoordinator: myProcess.isCoordinator,
+      });
   });
 
   // Default
@@ -49,8 +46,9 @@ dotenv.config();
 
   server.listen(port, async function () {
     logger.info(`Listening on http://localhost:${port}`);
-    myProcess.updateProcesses();
+    const processes = (process.env.PROCESS_ADDRESS).split(',');
+    await myProcess.updateProcesses(processes);
+    await myProcess.callElection();
 
-    myProcess.callElection();
   });
 })();
