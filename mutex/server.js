@@ -1,4 +1,5 @@
 import Process from './process.js';
+import logger from '../log.js';
 import express from 'express';
 import dotenv from 'dotenv';
 import http from 'http';
