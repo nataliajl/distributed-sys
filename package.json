@@ -5,9 +5,7 @@
   "main": "server.js",
   "type": "module",
   "scripts": {
-    "clock": "node clock/server.js",
-    "mutex": "node mutex/server.js",
-    "election": "node election/server.js"
+    "start": "node mutex/server.js"
   },
   "repository": {
     "type": "git",
