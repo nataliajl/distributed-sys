@@ -10,7 +10,7 @@ dotenv.config();
 
 log4js_extend(log4js, {
   path: __dirname,
-  format: `at Process ${process.env.PROCESS_NAME} (@file:@line:@column)`,
+  format: `at Process ${process.env.PROCESS_ID} (@file:@line:@column)`,
 });
 
 const logger = log4js.getLogger('MC714-T2');
