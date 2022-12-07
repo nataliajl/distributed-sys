@@ -2,14 +2,14 @@ import Process from './process.js';
 import logger from '../log.js';
 import express from 'express';
 import dotenv from 'dotenv';
-import http from 'http';
+import https from 'https';
 
 dotenv.config();
 
 (() => {
   const app = express();
   const router = express.Router();
-  const server = http.createServer(app);
+  const server = https.createServer(app);
   const port = process.env.PORT || 9898;
   const myProcess = new Process(process.env.PROCESS_NAME);
 
@@ -31,6 +31,6 @@ dotenv.config();
   app.use('/', router);
 
   server.listen(port, async function () {
-    logger.info(`Listening on http://localhost:${port}`);
+    logger.info(`Listening on https://localhost:${port}`);
   });
 })();
