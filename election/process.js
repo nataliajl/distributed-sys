@@ -33,7 +33,7 @@ class Process {
 
   async pingCoordinator() {
     if (!this.isCoordinator) {
-      const url = `http://${this.coordinator.url}/ping`;
+      const url = `${this.coordinator.url}/ping`;
       logger.info(
         `The process ${this.id} is verifying the coordinator availability`
       );
@@ -57,7 +57,7 @@ class Process {
     logger.info("I'm the coordinator now! I'll tell everybody");
 
     this.processes.forEach((process) => {
-      fetch(`http://${process.url}/news`, {
+      fetch(`${process.url}/news`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -73,7 +73,7 @@ class Process {
     new Promise((resolve, reject) => {
       this.processes.forEach(async (process) => {
         if (process.id > this.id) {
-          await fetch(`http://${process.url}/election`, { method: 'GET' })
+          await fetch(`${process.url}/election`, { method: 'GET' })
             .then((response) => {
               const status = response.status;
               logger.info(
