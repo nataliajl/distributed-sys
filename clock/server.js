@@ -10,7 +10,7 @@ dotenv.config();
   const app = express();
   const router = express.Router();
   const server = http.createServer(app);
-  const port = process.env.PORT || 9898;
+  const port = process.env.PORT_PROCESS || 9898;
   const myProcess = new Process(process.env.PROCESS_NAME);
 
   myProcess.startClock();
