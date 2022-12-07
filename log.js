@@ -14,6 +14,6 @@ log4js_extend(log4js, {
 });
 
 const logger = log4js.getLogger('MC714-T2');
-logger.level = 'debug';
+logger.level = process.env.LEVEL;
 
 export default logger;
