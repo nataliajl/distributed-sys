@@ -3,17 +3,25 @@ import logger from '../log.js';
 import express from 'express';
 import dotenv from 'dotenv';
 import https from 'https';
+import fs from 'fs';
 
 dotenv.config();
+const credentials = {
+  key: fs.readFileSync('./self-certificate/key.pem'),
+  cert: fs.readFileSync('./self-certificate/cert.pem')
+};
 
 (() => {
   const app = express();
   const router = express.Router();
-  const server = https.createServer(app);
+  const server = https.createServer(credentials, app);
   const port = process.env.PORT || 9898;
   const myProcess = new Process(process.env.PROCESS_NAME);
 
   myProcess.startClock();
+
+
+  
 
   // Lamport
   router.get('/hello', async (req, res) => {
