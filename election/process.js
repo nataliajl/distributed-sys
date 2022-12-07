@@ -21,14 +21,14 @@ class Process {
     const process = this.processes.find((process) => {
       if (process.id == id) return process;
     });
-    logger.debug('Current coordinator: ', this.coordinator);
+    logger.info('Current coordinator: ', this.coordinator);
     this.coordinator = process;
     if (id != this.id) {
       this.isCoordinator = false;
       logger.debug('I am not the coordinator anymore');
     }
 
-    logger.debug('updated coordinator: ', this.coordinator);
+    logger.info('Updated coordinator: ', this.coordinator);
   }
 
   async pingCoordinator() {
