@@ -3,21 +3,17 @@ import logger from '../log.js';
 import express from 'express';
 import dotenv from 'dotenv';
 import http from 'http';
-import fs from 'fs';
 
 dotenv.config();
 
 (() => {
   const app = express();
   const router = express.Router();
-  const server = http.createServer(credentials, app);
+  const server = http.createServer(app);
   const port = process.env.PORT || 9898;
   const myProcess = new Process(process.env.PROCESS_NAME);
 
-  myProcess.startClock();
-
-
-  
+  myProcess.startClock();  
 
   // Lamport
   router.get('/hello', async (req, res) => {
