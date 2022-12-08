@@ -37,10 +37,14 @@ class Process {
       logger.info(
         `The process ${this.id} is verifying the coordinator availability`
       );
-      logger.info(`url: ${url}`);
+      logger.debug(`url:${url}`);
+      logger.info(`Pinging coordinator ${this.coordinator.id}`);
       fetch(url, {
         method: 'GET',
-      }).catch(() => this.callElection());
+      }).catch((err) => {
+        logger.error(`Cannot ping coordinator - ${err.message}`);
+        callElection();
+      });
     }
   }
 
@@ -69,7 +73,7 @@ class Process {
   }
 
   async callElection() {
-    logger.info('Election called by me, the process ', this.id);
+    logger.info(`Election called by me, the process ${this.id}`);
     new Promise((resolve, reject) => {
       this.processes.forEach(async (process) => {
         if (process.id > this.id) {
