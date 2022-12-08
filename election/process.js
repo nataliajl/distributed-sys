@@ -45,7 +45,7 @@ class Process {
         const status = response.status;
         
         if (status != 200) {
-          logger.info(`Cannot ping coordinator - ${err.message}`);
+          logger.info(`Cannot ping coordinator`);
           this.callElection();
         }
       })
