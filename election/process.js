@@ -1,4 +1,3 @@
-import schedule from 'node-schedule';
 import fetch from 'node-fetch';
 import logger from '../log.js';
 import dotenv from 'dotenv';
@@ -41,9 +40,17 @@ class Process {
       logger.info(`Pinging coordinator ${this.coordinator.id}`);
       fetch(url, {
         method: 'GET',
-      }).catch((err) => {
-        logger.error(`Cannot ping coordinator - ${err.message}`);
-        callElection();
+      })
+      .then((response) => {
+        const status = response.status;
+        
+        if (status != 200) {
+          logger.info(`Cannot ping coordinator - ${err.message}`);
+          this.callElection();
+        }
+      })
+      .catch((err) => {
+        logger.error(err.message);
       });
     }
   }
