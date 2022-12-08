@@ -1,5 +1,6 @@
 import schedule from 'node-schedule';
 import dotenv from 'dotenv';
+import logger from '../log.js';
 
 dotenv.config();
 
@@ -9,7 +10,7 @@ class MyWorker {
   async start(proccess) {
     schedule.scheduleJob('*/5 * * * * *', async function () {
       if (!proccess.isCoordinator) {
-        console.log('alo: ', proccess.isCoordinator);
+        logger.info(`I'm pinging the coordinator: `, proccess.coordinator);
         proccess.pingCoordinator();
       }
     });
